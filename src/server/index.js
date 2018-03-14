@@ -1,17 +1,22 @@
+require('babel-polyfill');
 import Koa from 'koa';
 import KoaRouter from 'koa-router';
 import KoaStatic from 'koa-static';
 import React from 'react';
 import { renderToString } from 'react-dom/server';
 import App from '../shared/app';
+import fetch from 'isomorphic-fetch';
+import serialize from 'serialize-javascript';
 
 const app = new Koa();
 const router = new KoaRouter();
 
 app.use(KoaStatic('build'));
 
-router.get('*', (ctx, next) => {
-    const app = renderToString(<App/>);
+router.get('*', async (ctx, next) => {
+    const res = await fetch('http://www.hostedredmine.com/projects.json');
+    const data = await res.json();
+    const app = renderToString(<App data={data}/>);
 
     ctx.body = `
         <!DOCTYPE html>
@@ -22,10 +27,13 @@ router.get('*', (ctx, next) => {
         </head>
         <body>
             <div id="app">${app}</div>
+            <script>window.__INITIAL_DATA__ = ${serialize(data)}</script>
             <script src="/client.js"></script>
+            
         </body>
         </html>
     `;
+
 });
 
 app.use(router.routes());

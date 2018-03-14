@@ -9,11 +9,14 @@
     "dev": "webpack -w & nodemon ./build/server.js"
   },
   "dependencies": {
+    "babel-polyfill": "^6.26.0",
+    "isomorphic-fetch": "^2.2.1",
     "koa": "^2.5.0",
     "koa-router": "^7.4.0",
     "koa-static": "^4.0.2",
     "react": "^16.2.0",
-    "react-dom": "^16.2.0"
+    "react-dom": "^16.2.0",
+    "serialize-javascript": "^1.4.0"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",
