@@ -1,11 +1,21 @@
 import React from 'react';
-import Projects from './projects';
+import routes from './routes';
+import { Route, Switch } from 'react-router-dom';
 
 export default class App extends React.Component {
     render() {
-        return (<div>
-            React SSR App
-            <Projects data={this.props.data}/>
-        </div>);
+        return (
+            <Switch>
+                {
+                    routes.map(({ path, exact, component: Comp }) => {
+                        return <Route
+                            key={path}
+                            path={path}
+                            exact={exact}
+                            render={(props) => <Comp {...props}/>}
+                        />;
+                    })
+                }
+            </Switch>);
     }
 }

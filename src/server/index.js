@@ -7,6 +7,7 @@ import { renderToString } from 'react-dom/server';
 import App from '../shared/app';
 import fetch from 'isomorphic-fetch';
 import serialize from 'serialize-javascript';
+import { StaticRouter, matchPath } from 'react-router-dom';
 
 const app = new Koa();
 const router = new KoaRouter();
@@ -16,7 +17,11 @@ app.use(KoaStatic('build'));
 router.get('*', async (ctx, next) => {
     const res = await fetch('http://www.hostedredmine.com/projects.json');
     const data = await res.json();
-    const app = renderToString(<App data={data}/>);
+    const context = { data };
+
+    const app = renderToString(<StaticRouter location={ctx.request.url} context={context}>
+        <App data={data}/>
+    </StaticRouter>);
 
     ctx.body = `
         <!DOCTYPE html>
