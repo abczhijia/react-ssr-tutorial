@@ -7,11 +7,11 @@ import serialize from 'serialize-javascript';
 import App from '../shared/app';
 import { StaticRouter, matchPath } from 'react-router-dom';
 import routes from '../shared/routes';
+import _ from 'lodash';
 
 const router = new KoaRouter();
 
 router.get('/api/*', async (ctx, next) => {
-    console.log('url: ', ctx.request.url);
     const url = ctx.request.url.replace(/^\/api/, '');
     const res = await fetch(`http://www.hostedredmine.com${url}`);
     const data = await res.json();
@@ -20,14 +20,11 @@ router.get('/api/*', async (ctx, next) => {
 
 
 router.get('*', async (ctx, next) => {
-    const route = routes.find(r => matchPath(ctx.request.url, r.path));
-    let context = {}, data = null;
+    const route = routes.find(r => matchPath(ctx.request.path, r));
+    const context = {}, fn = _.get(route, 'component.prototype.prefetch');
 
-    console.log('route: ', route.prefetch);
-    if (route && route.component && route.component.prefetch && typeof route.component.prefetch == 'function') {
-        data = await route.component.prefetch();
-        data = await data.json();
-        context = { data };
+    if (typeof fn == 'function') {
+        context.prefetch = await fn(ctx.query);
     }
 
     const app = renderToString(<StaticRouter location={ctx.request.url} context={context}>
@@ -43,7 +40,7 @@ router.get('*', async (ctx, next) => {
         </head>
         <body>
             <div id="app">${app}</div>
-            <script>window.__INITIAL_DATA__ = ${serialize(data)}</script>
+            <script>window.__INITIAL_DATA__ = ${serialize(context.prefetch)}</script>
             <script src="/client.js"></script>
             
         </body>

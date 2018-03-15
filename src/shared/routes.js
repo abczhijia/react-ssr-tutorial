@@ -9,7 +9,7 @@ const routes = [
         component: ProjectList,
     },
     {
-        path: '/project/:id',
+        path: '/project/detail',
         exact: true,
         component: ProjectDetail,
     },
